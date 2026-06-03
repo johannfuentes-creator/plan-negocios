@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generador de Plan de Negocios con IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #1a7a5e;
+    --green-light: #e8f5f0;
+    --green-mid: #2da882;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --text: #1a1a2e;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    background: var(--green);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.2rem;
+  }
+
+  header p {
+    font-size: 0.82rem;
+    opacity: 0.85;
+  }
+
+  .wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .progress-wrapper {
+    margin-bottom: 1.25rem;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-info span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--green-mid));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.5rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+  }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .step-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .step-badge {
+    display: inline-block;
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .step-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .field {
+    margin-bottom: 1rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .field .hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    font-weight: 400;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--green);
+  }
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .foda-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .foda-cell {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+  }
+
+  .foda-cell .foda-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .foda-f .foda-label { color: #1a7a5e; }
+  .foda-d .foda-label { color: #b91c1c; }
+  .foda-o .foda-label { color: #1d4ed8; }
+  .foda-a .foda-label { color: #d97706; }
+
+  .foda-cell textarea {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 0.82rem;
+    min-height: 70px;
+  }
+
+  .foda-cell textarea:focus {
+    border: none;
+    outline: none;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+
+  .btn {
+    padding: 0.7rem 1.25rem;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--text);
+    transition: all 0.15s;
+  }
+
+  .btn:hover { background: var(--bg); }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-primary {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+    flex: 1;
+    text-align: center;
+  }
+
+  .btn-primary:hover { background: #155f4a; border-color: #155f4a; }
+
+  .btn-generate {
+    background: linear-gradient(135deg, #1a7a5e, #2da882);
+    color: white;
+    border: none;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .btn-generate:hover { opacity: 0.92; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1rem 0;
+  }
+
+  .result-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .result-header {
+    background: var(--green);
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .result-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .result-body {
+    padding: 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    max-height: 65vh;
+    overflow-y: auto;
+    min-height: 150px;
+  }
+
+  .result-footer {
+    padding: 0.85rem 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-copy, .btn-share {
+    flex: 1;
+    text-align: center;
+    padding: 0.65rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--text);
+    transition: all 0.15s;
+    min-width: 120px;
+  }
+
+  .btn-copy:hover { background: var(--bg); }
+
+  .btn-share {
+    background: #25D366;
+    color: white;
+    border-color: #25D366;
+  }
+
+  .btn-share:hover { background: #1ebe59; }
+
+  .btn-restart {
+    width: 100%;
+    text-align: center;
+    padding: 0.65rem;
+    margin-top: 0.5rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--text-muted);
+  }
+
+  .loading-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    gap: 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .tip-box {
+    background: var(--amber-light);
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    color: #92400e;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .tip-box span { font-size: 1rem; flex-shrink: 0; }
+
+  @media (max-width: 420px) {
+    .two-col, .foda-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Plan de Negocios con IA</h1>
+  <p>Completa los pasos y genera tu plan en minutos</p>
+</header>
+
+<div class="wrapper">
+
+  <div class="progress-wrapper" id="progressWrapper">
+    <div class="progress-info">
+      <span id="progressLabel">Paso 1 de 7</span>
+      <span id="progressPct">14%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:14%"></div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- PASO 1 -->
+    <div class="step active" data-step="0">
+      <div class="step-header">
+        <div class="step-badge">Información general</div>
+        <div class="step-title">Cuéntanos sobre tu negocio</div>
+      </div>
+      <div class="field">
+        <label>Nombre del negocio *</label>
+        <div class="hint">Ej: Panadería Don José, Servicios Limpieza Total</div>
+        <input type="text" id="nombreNegocio" placeholder="Escribe el nombre aquí..." />
+      </div>
+      <div class="field">
+        <label>Tu nombre completo *</label>
+        <input type="text" id="nombreEmprendedor" placeholder="Tu nombre y apellido" />
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Ciudad</label>
+          <input type="text" id="ciudad" placeholder="Ej: San José" />
+        </div>
+        <div class="field">
+          <label>País</label>
+          <input type="text" id="pais" placeholder="Ej: Costa Rica" />
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Qué hace o vende tu negocio? *</label>
+        <div class="hint">Describe en pocas palabras tu actividad principal</div>
+        <textarea id="descripcionGeneral" placeholder="Ej: Vendo pan artesanal hecho en casa para familias del barrio..."></textarea>
+      </div>
+      <div class="field">
+        <label>Historia del negocio</label>
+        <div class="hint">¿Cómo nació? ¿Cuánto tiempo lleva? ¿En qué etapa está?</div>
+        <textarea id="historia" placeholder="Ej: Empecé hace 2 años desde mi casa con ₡50.000..."></textarea>
+      </div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="step" data-step="1">
+      <div class="step-header">
+        <div class="step-badge">Identidad del negocio</div>
+        <div class="step-title">¿Para qué existe tu negocio?</div>
+      </div>
+      <div class="tip-box"><span>💡</span> Si no tienes esto definido, describe con tus palabras y la IA lo redactará profesionalmente.</div>
+      <div class="field">
+        <label>Misión (¿para qué existe el negocio?)</label>
+        <textarea id="mision" placeholder="Ej: Ofrecer pan casero de calidad a precios justos para familias de la comunidad..."></textarea>
+      </div>
+      <div class="field">
+        <label>Visión (¿a dónde quiere llegar?)</label>
+        <textarea id="vision" placeholder="Ej: Ser la panadería más querida del cantón para el año 2027..."></textarea>
+      </div>
+      <div class="field">
+        <label>Valores del negocio</label>
+        <textarea id="valores" placeholder="Ej: Honestidad, calidad, servicio al cliente, responsabilidad..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Qué hace único a tu negocio?</label>
+        <div class="hint">¿Por qué un cliente te elegiría a ti y no a otro?</div>
+        <textarea id="propuestaValor" placeholder="Ej: Usamos recetas tradicionales de la abuela, sin conservantes..."></textarea>
+      </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="step" data-step="2">
+      <div class="step-header">
+        <div class="step-badge">Análisis FODA</div>
+        <div class="step-title">Situación de tu negocio</div>
+      </div>
+      <div class="tip-box"><span>💡</span> Escribe lo que se te ocurra, no tiene que ser perfecto. La IA lo complementará.</div>
+      <div class="foda-grid">
+        <div class="foda-cell foda-f">
+          <div class="foda-label">✅ Fortalezas</div>
+          <textarea id="fortalezas" placeholder="¿Qué haces bien?"></textarea>
+        </div>
+        <div class="foda-cell foda-d">
+          <div class="foda-label">⚠️ Debilidades</div>
+          <textarea id="debilidades" placeholder="¿Qué hay que mejorar?"></textarea>
+        </div>
+        <div class="foda-cell foda-o">
+          <div class="foda-label">🚀 Oportunidades</div>
+          <textarea id="oportunidades" placeholder="¿Qué puedes aprovechar?"></textarea>
+        </div>
+        <div class="foda-cell foda-a">
+          <div class="foda-label">🔴 Amenazas</div>
+          <textarea id="amenazas" placeholder="¿Qué riesgos hay?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="step" data-step="3">
+      <div class="step-header">
+        <div class="step-badge">Mercado y producto</div>
+        <div class="step-title">¿A quién le vendes y qué vendes?</div>
+      </div>
+      <div class="field">
+        <label>¿Quiénes son tus clientes? *</label>
+        <div class="hint">Edad, zona, tipo de persona, necesidades</div>
+        <textarea id="mercadoObjetivo" placeholder="Ej: Familias con hijos, entre 25-50 años, del barrio Los Ángeles..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Qué tan grande es tu mercado?</label>
+        <textarea id="tamanoMercado" placeholder="Ej: En mi comunidad hay aprox. 500 familias que podrían ser clientes..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Por qué te compran a ti y no a otro?</label>
+        <textarea id="ventajasCompetitivas" placeholder="Mis ventajas frente a la competencia son..."></textarea>
+      </div>
+      <hr class="divider" />
+      <div class="field">
+        <label>¿Qué productos o servicios ofreces? *</label>
+        <div class="hint">Lista lo que vendes con precios si los tienes</div>
+        <textarea id="productos" placeholder="Ej: Pan dulce ₡500, Panes de queso ₡800, Pasteles ₡2.500..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Qué beneficio le da a tu cliente lo que vendes?</label>
+        <textarea id="beneficiosCliente" placeholder="Ej: Ahorra tiempo porque le llevamos el pan a domicilio..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿En qué es diferente tu producto al de la competencia?</label>
+        <textarea id="diferenciacion" placeholder="Ej: Nuestro pan no lleva conservantes y se hace el mismo día..."></textarea>
+      </div>
+    </div>
+
+    <!-- PASO 5 -->
+    <div class="step" data-step="4">
+      <div class="step-header">
+        <div class="step-badge">Marketing y ventas</div>
+        <div class="step-title">¿Cómo atraes y vendes a tus clientes?</div>
+      </div>
+      <div class="field">
+        <label>¿Cómo defines tus precios?</label>
+        <textarea id="precios" placeholder="Ej: Me baso en el costo de los ingredientes más un 40% de ganancia..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cómo llega tu producto al cliente?</label>
+        <div class="hint">Tienda, delivery, WhatsApp, mercados, ferias...</div>
+        <textarea id="canales" placeholder="Ej: Vendo por WhatsApp y hago entregas a domicilio los viernes..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cómo das a conocer tu negocio?</label>
+        <textarea id="promocion" placeholder="Ej: Publico en Facebook e Instagram, boca a boca en el barrio..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cómo cierras una venta?</label>
+        <textarea id="estrategiaVentas" placeholder="Ej: Los clientes me escriben por WhatsApp, les mando el menú del día..."></textarea>
+      </div>
+    </div>
+
+    <!-- PASO 6 -->
+    <div class="step" data-step="5">
+      <div class="step-header">
+        <div class="step-badge">Operación del negocio</div>
+        <div class="step-title">¿Cómo funciona tu negocio por dentro?</div>
+      </div>
+      <div class="field">
+        <label>¿Cuántas personas trabajan y en qué?</label>
+        <textarea id="estructura" placeholder="Ej: Yo hago el pan, mi hija atiende pedidos, mi esposo hace entregas..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cuáles son los pasos principales para operar cada día?</label>
+        <textarea id="procesos" placeholder="Ej: Lunes compro ingredientes, martes y jueves hornoo, viernes entrego pedidos..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿A quién le compras tus insumos?</label>
+        <textarea id="proveedores" placeholder="Ej: Harina en PriceSmart, huevos con el productor don Carlos..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Qué equipos o herramientas usas?</label>
+        <textarea id="tecnologia" placeholder="Ej: Horno industrial, batidora, celular para pedidos por WhatsApp..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Desde dónde operas?</label>
+        <textarea id="ubicacion" placeholder="Ej: Desde mi casa en Barrio Los Ángeles, San José..."></textarea>
+      </div>
+    </div>
+
+    <!-- PASO 7 -->
+    <div class="step" data-step="6">
+      <div class="step-header">
+        <div class="step-badge">Finanzas y metas</div>
+        <div class="step-title">Números y objetivos del negocio</div>
+      </div>
+      <div class="field">
+        <label>¿Cómo genera dinero tu negocio?</label>
+        <textarea id="ingresos" placeholder="Ej: Venta directa de pan, pedidos por encargo, pasteles para eventos..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cuáles son tus gastos principales?</label>
+        <textarea id="costos" placeholder="Ej: Ingredientes ₡80.000/mes, luz ₡15.000/mes, empaques ₡8.000/mes..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cuánto necesitas vender para cubrir los gastos?</label>
+        <textarea id="equilibrio" placeholder="Ej: Necesito vender al menos ₡200.000 al mes para cubrir todo..."></textarea>
+      </div>
+      <div class="field">
+        <label>¿Qué quieres lograr en los próximos 12 meses?</label>
+        <div class="hint">Metas de ventas, clientes nuevos, expansión, etc.</div>
+        <textarea id="objetivos" placeholder="Ej: Llegar a 50 clientes fijos, abrir punto de venta, contratar un ayudante..."></textarea>
+      </div>
+      <button class="btn btn-generate" onclick="generatePlan()">✨ Generar mi Plan de Negocios</button>
+    </div>
+
+  </div><!-- end card -->
+
+  <!-- RESULTADO -->
+  <div id="resultSection" style="display:none;">
+    <div class="result-card">
+      <div class="result-header">
+        <div>
+          <h2>📄 Tu Plan de Negocios</h2>
+          <p style="font-size:0.78rem; opacity:0.85; margin-top:2px;">Generado con Inteligencia Artificial</p>
+        </div>
+      </div>
+      <div class="result-body" id="resultBody">
+        <div class="loading-box">
+          <div class="spinner"></div>
+          <p>Generando tu plan de negocios personalizado...<br>Esto puede tomar unos segundos.</p>
+        </div>
+      </div>
+      <div class="result-footer">
+        <button class="btn-copy" onclick="copyPlan()">📋 Copiar texto</button>
+        <button class="btn-share" onclick="shareWhatsApp()">💬 Compartir por WhatsApp</button>
+      </div>
+    </div>
+    <button class="btn-restart" onclick="restart()">🔄 Crear otro plan de negocios</button>
+  </div>
+
+  <!-- Botones de navegación -->
+  <div class="nav-buttons" id="navButtons">
+    <button class="btn" id="btnBack" onclick="navigate(-1)" disabled>← Atrás</button>
+    <button class="btn btn-primary" id="btnNext" onclick="navigate(1)">Siguiente →</button>
+  </div>
+
+</div><!-- end wrapper -->
+
+<script>
+const TOTAL = 7;
+let current = 0;
+let planText = '';
+
+function g(id) { return (document.getElementById(id)||{}).value||''; }
+
+function updateProgress() {
+  const pct = Math.round(((current+1)/TOTAL)*100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = 'Paso ' + (current+1) + ' de ' + TOTAL;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const steps = document.querySelectorAll('.step');
+  if (steps[n]) steps[n].classList.add('active');
+  document.getElementById('btnBack').disabled = n === 0;
+  const isLast = n === TOTAL - 1;
+  document.getElementById('btnNext').style.display = isLast ? 'none' : 'inline-block';
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigate(dir) {
+  current = Math.max(0, Math.min(TOTAL - 1, current + dir));
+  showStep(current);
+}
+
+async function generatePlan() {
+  document.querySelector('.card').style.display = 'none';
+  document.getElementById('navButtons').style.display = 'none';
+  document.getElementById('progressWrapper').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const data = {
+    nombre: g('nombreNegocio')||'Mi negocio',
+    emprendedor: g('nombreEmprendedor'),
+    ciudad: g('ciudad'), pais: g('pais'),
+    descripcion: g('descripcionGeneral'),
+    historia: g('historia'),
+    mision: g('mision'), vision: g('vision'), valores: g('valores'),
+    propuestaValor: g('propuestaValor'),
+    fortalezas: g('fortalezas'), debilidades: g('debilidades'),
+    oportunidades: g('oportunidades'), amenazas: g('amenazas'),
+    mercadoObjetivo: g('mercadoObjetivo'),
+    tamanoMercado: g('tamanoMercado'),
+    ventajasCompetitivas: g('ventajasCompetitivas'),
+    productos: g('productos'),
+    beneficiosCliente: g('beneficiosCliente'),
+    diferenciacion: g('diferenciacion'),
+    precios: g('precios'), canales: g('canales'),
+    promocion: g('promocion'), estrategiaVentas: g('estrategiaVentas'),
+    estructura: g('estructura'), procesos: g('procesos'),
+    proveedores: g('proveedores'), tecnologia: g('tecnologia'),
+    ubicacion: g('ubicacion'),
+    ingresos: g('ingresos'), costos: g('costos'),
+    equilibrio: g('equilibrio'), objetivos: g('objetivos')
+  };
+
+  const prompt = `Eres un experto en elaboración de planes de negocios para emprendedores latinoamericanos de base popular. Con la información siguiente, genera un plan de negocios completo, profesional y bien desarrollado en español sencillo.
+
+DATOS DEL NEGOCIO:
+Nombre: ${data.nombre}
+Emprendedor: ${data.emprendedor}
+Ubicación: ${data.ciudad}, ${data.pais}
+Descripción: ${data.descripcion}
+Historia: ${data.historia}
+Misión: ${data.mision}
+Visión: ${data.vision}
+Valores: ${data.valores}
+Propuesta de valor: ${data.propuestaValor}
+Fortalezas: ${data.fortalezas}
+Debilidades: ${data.debilidades}
+Oportunidades: ${data.oportunidades}
+Amenazas: ${data.amenazas}
+Mercado objetivo: ${data.mercadoObjetivo}
+Tamaño del mercado: ${data.tamanoMercado}
+Ventajas competitivas: ${data.ventajasCompetitivas}
+Productos/servicios: ${data.productos}
+Beneficios para el cliente: ${data.beneficiosCliente}
+Diferenciación: ${data.diferenciacion}
+Estrategia de precios: ${data.precios}
+Canales de distribución: ${data.canales}
+Promoción y publicidad: ${data.promocion}
+Estrategia de ventas: ${data.estrategiaVentas}
+Estructura organizacional: ${data.estructura}
+Procesos clave: ${data.procesos}
+Proveedores: ${data.proveedores}
+Tecnología y recursos: ${data.tecnologia}
+Ubicación e infraestructura: ${data.ubicacion}
+Fuentes de ingresos: ${data.ingresos}
+Costos principales: ${data.costos}
+Punto de equilibrio: ${data.equilibrio}
+Objetivos y metas: ${data.objetivos}
+
+Genera el plan con esta estructura exacta:
+
+PLAN DE NEGOCIO
+${data.nombre}
+Elaborado por: ${data.emprendedor}
+Lugar: ${data.ciudad}, ${data.pais}
+
+══════════════════════════════════
+
+RESUMEN EJECUTIVO
+[150-200 palabras resumiendo el negocio, su propuesta de valor, mercado y proyección]
+
+══════════════════════════════════
+
+1. HISTORIA DEL NEGOCIO Y ESTADO ACTUAL
+
+2. DESCRIPCIÓN DE LA EMPRESA
+
+3. MISIÓN, VISIÓN Y VALORES
+Misión:
+Visión:
+Valores:
+
+4. PROPUESTA DE VALOR
+
+══════════════════════════════════
+
+5. ANÁLISIS F.O.D.A.
+
+FORTALEZAS:
+DEBILIDADES:
+OPORTUNIDADES:
+AMENAZAS:
+
+══════════════════════════════════
+
+6. ANÁLISIS DEL MERCADO
+6.1 Mercado objetivo
+6.2 Tamaño del mercado
+6.3 Ventajas competitivas
+
+══════════════════════════════════
+
+7. PRODUCTO O SERVICIO
+7.1 Productos o servicios ofrecidos
+7.2 Beneficios para el cliente
+7.3 Diferenciación frente a la competencia
+
+══════════════════════════════════
+
+8. PLAN DE MARKETING Y VENTAS
+8.1 Estrategia de precios
+8.2 Canales de distribución
+8.3 Promoción y publicidad
+8.4 Estrategia de ventas
+
+══════════════════════════════════
+
+9. PLAN OPERATIVO
+9.1 Estructura organizacional
+9.2 Procesos clave del negocio
+9.3 Proveedores
+9.4 Tecnología y recursos necesarios
+9.5 Ubicación e infraestructura
+
+══════════════════════════════════
+
+10. OBJETIVOS Y METAS ESTRATÉGICAS
+[Lista de objetivos, metas, actividades, recursos y responsables]
+
+══════════════════════════════════
+
+11. PLAN FINANCIERO
+11.1 Fuentes de ingresos
+11.2 Costos principales
+11.3 Punto de equilibrio
+
+Desarrolla cada sección de forma completa y en lenguaje claro. Si falta información, completa con contenido razonable para ese tipo de negocio.`;
+
+  const resultBody = document.getElementById('resultBody');
+  planText = '';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    resultBody.textContent = '';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const lines = decoder.decode(value).split('\n');
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const d = line.slice(6);
+          if (d === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(d);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              planText += parsed.delta.text;
+              resultBody.textContent = planText;
+              resultBody.scrollTop = resultBody.scrollHeight;
+            }
+          } catch(e) {}
+        }
+      }
+    }
+  } catch(err) {
+    resultBody.textContent = 'Ocurrió un error al generar el plan. Por favor recarga la página e intenta de nuevo.';
+  }
+}
+
+function copyPlan() {
+  if (!planText) return;
+  navigator.clipboard.writeText(planText).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✅ ¡Copiado!';
+    setTimeout(() => { btn.textContent = '📋 Copiar texto'; }, 2500);
+  });
+}
+
+function shareWhatsApp() {
+  if (!planText) return;
+  const preview = planText.substring(0, 300) + '...\n\n(Plan completo generado con IA)';
+  const url = 'https://wa.me/?text=' + encodeURIComponent(preview);
+  window.open(url, '_blank');
+}
+
+function restart() {
+  document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
+  current = 0;
+  planText = '';
+  document.getElementById('resultSection').style.display = 'none';
+  document.querySelector('.card').style.display = 'block';
+  document.getElementById('navButtons').style.display = 'flex';
+  document.getElementById('progressWrapper').style.display = 'block';
+  showStep(0);
+}
+
+showStep(0);
+</script>
+</body>
+</html>
